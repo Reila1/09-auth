@@ -2,7 +2,6 @@ import api from './api';
 import { User } from '@/types/user';
 import { Note } from '@/types/note';
 
-// --- Auth ---
 
 export interface AuthCredentials {
   email: string;
@@ -28,19 +27,16 @@ export const checkSession = async (): Promise<User | null> => {
   return data;
 };
 
-// --- Users ---
-
 export const getMe = async (): Promise<User> => {
   const { data } = await api.get('/users/me');
   return data;
 };
 
-export const updateMe = async (userData: Partial<User>): Promise<User> => {
+export const updateMe = async (userData: { username: string }): Promise<User> => {
   const { data } = await api.patch('/users/me', userData);
   return data;
 };
 
-// --- Notes ---
 
 export interface FetchNotesParams {
   search?: string;

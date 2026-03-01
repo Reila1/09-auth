@@ -1,11 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { checkSession } from './lib/api/serverApi';
 
 const privateRoutes = ['/profile', '/notes'];
 const authRoutes = ['/sign-in', '/sign-up'];
 
-export function proxy(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
-  const token = request.cookies.get('token')?.value;
+
+  const accessToken = request.cookies.get('accessToken')?.value;
+  const refreshToken = request.cookies.get('refreshToken')?.value;
 
   const isPrivate = privateRoutes.some((route) =>
     pathname.startsWith(route)
@@ -14,12 +17,31 @@ export function proxy(request: NextRequest) {
     pathname.startsWith(route)
   );
 
-  if (isPrivate && !token) {
-    return NextResponse.redirect(new URL('/sign-in', request.url));
+  if (accessToken) {
+    if (isAuth) {
+      return NextResponse.redirect(new URL('/', request.url));
+    }
+    return NextResponse.next();
+  }
+  if (refreshToken) {
+    try {
+      const user = await checkSession();
+      if (user) {
+        if (isAuth) {
+          return NextResponse.redirect(new URL('/', request.url));
+        }
+        return NextResponse.next();
+      }
+    } catch {
+      if (isPrivate) {
+        return NextResponse.redirect(new URL('/sign-in', request.url));
+      }
+      return NextResponse.next();
+    }
   }
 
-  if (isAuth && token) {
-    return NextResponse.redirect(new URL('/profile', request.url));
+  if (isPrivate) {
+    return NextResponse.redirect(new URL('/sign-in', request.url));
   }
 
   return NextResponse.next();

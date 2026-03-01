@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import TanStackProvider from '@/components/TanStackProvider/TanStackProvider';
 import AuthProvider from '@/components/AuthProvider/AuthProvider';
 import Header from '@/components/Header/Header';
+import Footer from '@/components/Footer/Footer';
 
 export const metadata: Metadata = {
   title: 'NoteHub',
@@ -10,8 +11,10 @@ export const metadata: Metadata = {
 
 export default function RootLayout({
   children,
+  modal,
 }: {
   children: React.ReactNode;
+  modal: React.ReactNode;
 }) {
   return (
     <html lang="en">
@@ -20,6 +23,8 @@ export default function RootLayout({
           <AuthProvider>
             <Header />
             {children}
+            {modal}
+            <Footer />
           </AuthProvider>
         </TanStackProvider>
       </body>

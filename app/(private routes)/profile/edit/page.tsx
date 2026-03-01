@@ -4,7 +4,7 @@ import Image from 'next/image';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { getMe, updateMe } from '@/lib/api/clientApi';
-import css from './page.module.css';
+import css from './EditProfilePage.module.css';
 
 export default function EditProfilePage() {
   const [username, setUsername] = useState('');

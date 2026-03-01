@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 
+const privateRoutes = ['/profile', '/notes'];
+const authRoutes = ['/sign-in', '/sign-up'];
+
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const token = request.cookies.get('token')?.value;
-
-  const privateRoutes = ['/profile', '/notes'];
-  const authRoutes = ['/sign-in', '/sign-up'];
 
   const isPrivate = privateRoutes.some((route) =>
     pathname.startsWith(route)
@@ -24,3 +24,7 @@ export function proxy(request: NextRequest) {
 
   return NextResponse.next();
 }
+
+export const config = {
+  matcher: ['/((?!api|_next/static|_next/image|favicon.ico).*)'],
+};

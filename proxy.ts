@@ -23,15 +23,26 @@ export async function proxy(request: NextRequest) {
     }
     return NextResponse.next();
   }
+
   if (refreshToken) {
     try {
-      const user = await checkSession();
-      if (user) {
-        if (isAuth) {
-          return NextResponse.redirect(new URL('/', request.url));
-        }
-        return NextResponse.next();
+      const sessionResponse = await checkSession();
+      const setCookieHeader = sessionResponse.headers['set-cookie'];
+
+      const response = isAuth
+        ? NextResponse.redirect(new URL('/', request.url))
+        : NextResponse.next();
+
+      if (setCookieHeader) {
+        const cookies = Array.isArray(setCookieHeader)
+          ? setCookieHeader
+          : [setCookieHeader];
+        cookies.forEach((cookie) => {
+          response.headers.append('Set-Cookie', cookie);
+        });
       }
+
+      return response;
     } catch {
       if (isPrivate) {
         return NextResponse.redirect(new URL('/sign-in', request.url));
@@ -48,5 +59,10 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/((?!api|_next/static|_next/image|favicon.ico).*)'],
+  matcher: [
+    '/profile/:path*',
+    '/notes/:path*',
+    '/sign-in',
+    '/sign-up',
+  ],
 };

@@ -17,32 +17,27 @@ interface NotesClientProps {
 export default function NotesClient({ tag }: NotesClientProps) {
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState('');
-  
+
   const [debouncedSearch] = useDebounce(search, 500);
-  
+
   const { data, isLoading, isError } = useQuery({
     queryKey: ['notes', page, debouncedSearch, tag],
-    queryFn: () => fetchNotes(page, 12, debouncedSearch, tag),
-    placeholderData: keepPreviousData
+    queryFn: () => fetchNotes({ page, search: debouncedSearch, tag }),
+    placeholderData: keepPreviousData,
   });
-  
+
   const handleSearchChange = (newSearch: string) => {
     setSearch(newSearch);
     setPage(1);
   };
-  
+
   const handlePageChange = (newPage: number) => {
     setPage(newPage);
   };
-  
-  if (isLoading) {
-    return <p>Loading...</p>;
-  }
 
-  if (isError) {
-    return <p>Error loading notes...</p>;
-  }
-  
+  if (isLoading) return <p>Loading...</p>;
+  if (isError) return <p>Error loading notes...</p>;
+
   return (
     <div className={css.app}>
       <header className={css.toolbar}>
@@ -58,7 +53,7 @@ export default function NotesClient({ tag }: NotesClientProps) {
           Create note +
         </Link>
       </header>
-      
+
       {data?.notes && <NoteList notes={data.notes} />}
     </div>
   );

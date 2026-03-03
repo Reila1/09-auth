@@ -2,10 +2,20 @@ import api from './api';
 import { User } from '@/types/user';
 import { Note } from '@/types/note';
 
-
 export interface AuthCredentials {
   email: string;
   password: string;
+}
+
+export interface FetchNotesParams {
+  search?: string;
+  page?: number;
+  tag?: string;
+}
+
+export interface NotesResponse {
+  notes: Note[];
+  totalPages: number;
 }
 
 export const register = async (credentials: AuthCredentials): Promise<User> => {
@@ -37,14 +47,7 @@ export const updateMe = async (userData: { username: string }): Promise<User> =>
   return data;
 };
 
-
-export interface FetchNotesParams {
-  search?: string;
-  page?: number;
-  tag?: string;
-}
-
-export const fetchNotes = async (params?: FetchNotesParams): Promise<Note[]> => {
+export const fetchNotes = async (params?: FetchNotesParams): Promise<NotesResponse> => {
   const { data } = await api.get('/notes', { params: { ...params, perPage: 12 } });
   return data;
 };
@@ -54,7 +57,7 @@ export const fetchNoteById = async (id: string): Promise<Note> => {
   return data;
 };
 
-export const createNote = async (note: Omit<Note, 'id'>): Promise<Note> => {
+export const createNote = async (note: Omit<Note, 'id' | 'createdAt'>): Promise<Note> => {
   const { data } = await api.post('/notes', note);
   return data;
 };
